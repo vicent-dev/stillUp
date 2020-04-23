@@ -1,0 +1,18 @@
+version: '3.3'
+
+services:
+  stillUp:
+    image: still_up:latest
+    ports:
+      - 5000:5000
+    volumes:
+      - ./build/still_up:/build
+  redis:
+    container_name: redis
+    image: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./build/redis:/build
+    entrypoint: redis-server --appendonly yes
+    restart: always

@@ -7,6 +7,9 @@ services:
       - 5000:5000
     volumes:
       - ./build/still_up:/build
+    restart: on-failure
+    depends_on:
+      - redis
   redis:
     container_name: redis
     image: redis
@@ -16,3 +19,8 @@ services:
       - ./build/redis:/build
     entrypoint: redis-server --appendonly yes
     restart: always
+    healthcheck:
+      test: ["CMD", "redis-cli","ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3

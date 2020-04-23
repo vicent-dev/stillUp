@@ -14,7 +14,6 @@ func CallHandler(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(err)
 		return
 	}
-
 	json.NewEncoder(w).Encode(c)
 	return
 }

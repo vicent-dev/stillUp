@@ -7,7 +7,6 @@ import (
 	"stillUp/api"
 )
 
-
 func main() {
 	err := godotenv.Load()
 	if err != nil {

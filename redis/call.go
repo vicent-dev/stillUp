@@ -8,7 +8,7 @@ import (
 
 type Call struct {
 	Header map[string]string `json:"header"`
-	Body   interface{} `json:"body"`
+	Body   interface{}       `json:"body"`
 }
 
 func (c *Call) Key() string {

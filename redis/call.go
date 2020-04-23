@@ -1,4 +1,4 @@
-package api
+package redis
 
 import (
 	"crypto/sha512"
@@ -12,7 +12,7 @@ type Call struct {
 	Method string `json:"method"`
 }
 
-func (c *Call) key() string {
+func (c *Call) Key() string {
 	hasher := sha512.New()
 	hasher.Write([]byte(fmt.Sprintf("%v", c)))
 	sha := base64.URLEncoding.EncodeToString(hasher.Sum(nil))

@@ -5,8 +5,8 @@ import (
 	"log"
 	"os"
 	"stillUp/api"
-	"stillUp/redis"
 )
+
 
 func main() {
 	err := godotenv.Load()
@@ -16,10 +16,5 @@ func main() {
 
 	port := os.Getenv("API_PORT")
 
-	redisHost := os.Getenv("REDIS_HOST")
-	redisPort := os.Getenv("REDIS_PORT")
-	redisPassword := os.Getenv("REDIS_PASSWORD")
-
-	redis.Connect(redisHost, redisPort, redisPassword)
 	api.Start(port)
 }

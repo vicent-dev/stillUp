@@ -3,10 +3,10 @@ package api
 import (
 	"encoding/json"
 	"errors"
-	"log"
 	"net/http"
 	"stillUp/redis"
 	"stillUp/request"
+	"sync"
 )
 
 func writErrorResponse(w http.ResponseWriter, err error) {
@@ -21,20 +21,30 @@ func CallHandler(w http.ResponseWriter, r *http.Request) {
 		writErrorResponse(w, errors.New("Error, wrong request"))
 		return
 	}
-
-	response, err := request.Get(&c)
-	if err != nil {
-		writErrorResponse(w, err)
-		return
-	}
-	c.Response = response
-
-	go redis.GetCallRepository().Save(&c)
+	rHttp, rRedis, err := getResponse(err, c)
 
 	if err != nil {
-		log.Println("Can't store on redis")
+		c.Response = rRedis
+	} else {
+		c.Response = rHttp
+		go redis.GetCallRepository().Save(&c)
 	}
 
 	json.NewEncoder(w).Encode(c.Response.Body)
 	return
+}
+
+func getResponse(err error, c redis.Call) (*redis.Response, *redis.Response, error) {
+	var wg sync.WaitGroup
+	wg.Add(2)
+	var rHttp, rRedis *redis.Response
+	go func(c *redis.Call, wg *sync.WaitGroup) {
+		rHttp, err = request.Get(c, wg)
+	}(&c, &wg)
+
+	go func(key string, wg *sync.WaitGroup) {
+		rRedis, _ = redis.GetCallRepository().Find(key, wg)
+	}(c.Key(), &wg)
+	wg.Wait()
+	return rHttp, rRedis, err
 }

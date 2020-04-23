@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/go-redis/redis/v7"
 	"os"
+	"sync"
 )
 
 var callRepository *CallRepository
@@ -36,7 +37,8 @@ func Connect(host string, port string, pwd string) (*CallRepository, error) {
 	return &CallRepository{client: client}, nil
 }
 
-func (c *CallRepository) Find(key string) (*Call, error) {
+func (c *CallRepository) Find(key string, wg *sync.WaitGroup) (*Response, error) {
+	defer wg.Done()
 	val, err := c.client.Get(key).Result()
 	if err != nil {
 		return nil, err
@@ -44,7 +46,7 @@ func (c *CallRepository) Find(key string) (*Call, error) {
 	call := &Call{}
 	err = json.Unmarshal([]byte(val), call)
 
-	return call, err
+	return call.Response, err
 }
 
 func (c *CallRepository) Save(call *Call) error {
@@ -52,6 +54,5 @@ func (c *CallRepository) Save(call *Call) error {
 	if err != nil {
 		return err
 	}
-
 	return c.client.Set(call.Key(), cJson, 0).Err()
 }

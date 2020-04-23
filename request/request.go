@@ -5,9 +5,11 @@ import (
 	"io/ioutil"
 	"net/http"
 	"stillUp/redis"
+	"sync"
 )
 
-func Get(c *redis.Call) (*redis.Response, error) {
+func Get(c *redis.Call, wg *sync.WaitGroup) (*redis.Response, error) {
+	defer wg.Done()
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", c.Url, nil)
 	if err != nil {
@@ -27,5 +29,10 @@ func Get(c *redis.Call) (*redis.Response, error) {
 		return nil, err
 	}
 	json.Unmarshal(body, &r.Body)
+	r.Header = make(map[string][]string, len(response.Header))
+	for k, v := range response.Header {
+		r.Header[k] = v
+	}
+
 	return r, err
 }

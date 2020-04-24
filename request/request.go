@@ -29,9 +29,10 @@ func Get(c *redis.Call, wg *sync.WaitGroup) (*redis.Response, error) {
 		return nil, err
 	}
 	json.Unmarshal(body, &r.Body)
-	r.Header = make(map[string][]string, len(response.Header))
+	r.Header = make(map[string]string, len(response.Header))
+
 	for k, v := range response.Header {
-		r.Header[k] = v
+		r.Header[k] = v[0]
 	}
 
 	return r, err

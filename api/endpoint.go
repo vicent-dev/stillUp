@@ -30,6 +30,10 @@ func CallHandler(w http.ResponseWriter, r *http.Request) {
 		go redis.GetCallRepository().Save(&c)
 	}
 
+	//for k, v := range c.Response.Header {
+	//	w.Header().Add(k, v)
+	//}
+
 	json.NewEncoder(w).Encode(c.Response.Body)
 	return
 }
